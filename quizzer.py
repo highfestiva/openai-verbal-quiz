@@ -3,7 +3,11 @@ import openai
 from random import choice
 
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv('OPENAI_API_KEY')
+if not openai.api_key:
+    print('ERROR: you need to a) create an OpenAI account, b) create API keys, and c) set the OPENAI_API_KEY system variable')
+    os.exit(1)
+
 
 prompt1 = '''An AI is asking very difficult quiz questions in music, history, physics and many other topics. After the human gives an answer the AI responds with the correct one and immediately asks a new question.
 '''

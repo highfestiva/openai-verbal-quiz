@@ -1,0 +1,4 @@
+gTTS==2.3.2
+openai==0.27.5
+PyAudio==0.2.13
+pygame==2.4.0
