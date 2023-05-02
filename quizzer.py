@@ -1,11 +1,13 @@
 import os
 import openai
+import logging
 from random import choice
 
 
+logger = logging.getLogger(__name__)
 openai.api_key = os.getenv('OPENAI_API_KEY')
 if not openai.api_key:
-    print('ERROR: you need to a) create an OpenAI account, b) create API keys, and c) set the OPENAI_API_KEY system variable')
+    logger.error('you need to a) create an OpenAI account, b) create API keys, and c) set the OPENAI_API_KEY system variable')
     os.exit(1)
 
 
@@ -30,7 +32,7 @@ def start():
 
 def answer(ans):
     global last_question, prompt
-    ans = ans.strip()
+    ans = ans.strip('.!? \n\t')
     ans = answer_fix(ans)
     text = f'{prompt}{last_question}{prompt2}{ans}{prompt3}'
     prompt = text
@@ -39,7 +41,7 @@ def answer(ans):
 
 
 def quiz(text):
-    # print(text, ' <-----------', end='\n\n')
+    logger.debug(text + ' <-- sending text to GPT')
     response = openai.Completion.create(
       model="text-davinci-003",
       prompt=text,
@@ -50,6 +52,7 @@ def quiz(text):
       presence_penalty=0.6,
       stop=[' AI:', ' Human:']
     )
+    logger.debug(str(response) + ' <-- got response back')
     resp = response['choices'][0]['text'].split('\n\n')[0].strip()
     return resp
 

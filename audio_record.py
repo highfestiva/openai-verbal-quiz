@@ -2,8 +2,12 @@ from array import array
 from struct import pack
 from sys import byteorder
 import copy
+import logging
 import pyaudio
 import wave
+
+
+logger = logging.getLogger(__name__)
 
 
 THRESHOLD = 1500  # audio levels not normalised.
@@ -55,6 +59,8 @@ def record():
     '''Record a word or words from the microphone and
     return the data as an array of signed shorts.'''
 
+    logger.debug('starting audio recording to RAM')
+
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK_SIZE)
 
@@ -75,11 +81,13 @@ def record():
             if silent:
                 silent_chunks += 1
                 if silent_chunks > SILENT_CHUNKS:
+                    logger.debug('silence concludes audio recording')
                     break
             else:
                 silent_chunks = 0
         elif not silent:
             audio_started = True
+            logger.debug('started recording audio to RAM')
 
     sample_width = p.get_sample_size(FORMAT)
     stream.stop_stream()
@@ -96,6 +104,7 @@ def record_to_file(path):
     sample_width, data = record()
     data = pack('<' + ('h' * len(data)), *data)
 
+    logger.debug('saving audio recording to %s', path)
     wave_file = wave.open(path, 'wb')
     wave_file.setnchannels(CHANNELS)
     wave_file.setsampwidth(sample_width)
